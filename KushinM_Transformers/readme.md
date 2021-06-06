@@ -4,4 +4,4 @@ Transformers are state-of-the-art sequence models used broadly in machine transl
 
 Here are some resources to get you started
 
-- [ ] A broad overview of the architecture and where it stands relative to Bag-of-Words, RNNs, LSTMs - https://www.youtube.com/watch?v=TQQlZhbC5ps  	
+- [ ] A broad overview of the architecture and where it stands relative to Bag-of-Words, RNNs, LSTMs - https://www.youtube.com/watch?v=S27pHKBEp30
