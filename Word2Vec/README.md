@@ -2,7 +2,7 @@
 
 Collect resources for understanding word2vec here. Below are links to materials for discussion on 6/9:
 
-**Less "crunchy" reading**
+**Less "crunchy" reading:**
 
 Blog post: https://jalammar.github.io/illustrated-word2vec/
 
