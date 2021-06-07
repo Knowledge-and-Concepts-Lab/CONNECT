@@ -4,9 +4,9 @@ Transformers are state-of-the-art sequence models used broadly in machine transl
 
 Here are some resources to get you started
 
-- [ ] A broad overview of the architecture and where it stands relative to Bag-of-Words, RNNs, LSTMs - https://www.youtube.com/watch?v=S27pHKBEp30
+ * A broad overview of the architecture and where it stands relative to Bag-of-Words, RNNs, LSTMs - https://www.youtube.com/watch?v=S27pHKBEp30
 
-- [ ] PyTorch's Transformer Tutorial on Google Colab. This runs on the cloud so you don't need to worry about installing things locally - https://colab.research.google.com/github/pytorch/tutorials/blob/gh-pages/_downloads/dca13261bbb4e9809d1a3aa521d22dd7/transformer_tutorial.ipynb
+ * PyTorch's Transformer Tutorial on Google Colab. This runs on the cloud so you don't need to worry about installing things locally - https://colab.research.google.com/github/pytorch/tutorials/blob/gh-pages/_downloads/dca13261bbb4e9809d1a3aa521d22dd7/transformer_tutorial.ipynb
 
 
 
