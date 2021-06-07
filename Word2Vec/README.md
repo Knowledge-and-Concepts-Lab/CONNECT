@@ -12,4 +12,4 @@ PyTorch implementation of the continuous-bag-of-words (CBOW) approach to fitting
 
 **Please add links to other resources you find here:**
 
-Chapter 6 of Jurafsy and Martin's NLP textbook is a helpful detailed guide to some of the concepts related to Word2Vec and embeddings in general - https://web.stanford.edu/~jurafsky/slp3/6.pdf
+Chapter 6 of Jurafsy and Martin's NLP textbook is a helpful detailed guide to some of the concepts related to Word2Vec and embeddings in general. Specifically pages 18-22 are great primers on the SGD-based training process for word2vec - https://web.stanford.edu/~jurafsky/slp3/6.pdf
