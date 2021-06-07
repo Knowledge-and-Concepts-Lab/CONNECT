@@ -20,4 +20,4 @@ Chapter 6 of Jurafsy and Martin's NLP textbook is a helpful detailed guide to so
 A couple of more detailed blog posts that disassemble the model and some of the reasoning behind various elements/steps:
 https://aegis4048.github.io/demystifying_neural_network_in_skip_gram_language_modeling#eq-18
 
-https://aegis4048.github.io/demystifying_neural_network_in_skip_gram_language_modeling#eq-18
+https://medium.com/district-data-labs/forward-propagation-building-a-skip-gram-net-from-the-ground-up-9578814b221#:~:text=The%20Skip%2Dgram%20neural%20network,layer%2C%20and%20an%20output%20layer.
