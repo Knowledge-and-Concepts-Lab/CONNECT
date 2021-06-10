@@ -24,15 +24,14 @@ https://medium.com/district-data-labs/forward-propagation-building-a-skip-gram-n
 ## Resources for training and downloading word embeddings (feel free to add):
 
 **Implementations**  
-[Folder with scripts, and sample corpus](https://uwprod-my.sharepoint.com/:f:/g/personal/borman_wisc_edu/EvzWE5VMOYtEs6-kUk7lhnoBUOQXrNZuWdiGcnuKl3V2vg?e=QYaMKF) (cleaned simple Wikipedia - 190Mb) for running Skip-Gram Negative Sampling (also contains embeddings trained using these scripts)
+Skip Gram w/ negative sampling: [Folder with scripts, corpus (simple wikipedia), and pretrained embeddings](https://uwprod-my.sharepoint.com/:f:/g/personal/borman_wisc_edu/EvzWE5VMOYtEs6-kUk7lhnoBUOQXrNZuWdiGcnuKl3V2vg?e=QYaMKF)
 
 [PyTorch implementation of the continuous-bag-of-words (CBOW) approach to fitting models](https://rguigoures.github.io/word2vec_pytorch/) (not the version of w2v we discussed)
 
 **Corpora**  
 [Historic American cookbook corpus (needs cleaning)](https://archive.lib.msu.edu/dinfo/feedingamerica/)  
-(If you like R, [this repo/package](https://github.com/bmschmidt/wordVectors) and [its introductory vignette](https://github.com/bmschmidt/wordVectors/blob/master/vignettes/introduction.Rmd) provides a simple walkthrough in cleaning the cookbook corpus and train word embeddings on it. Also shows some ways to visualize the resulting embedding space)
-
+(If interested in R implementation, [this repo/package](https://github.com/bmschmidt/wordVectors) and [its introductory vignette](https://github.com/bmschmidt/wordVectors/blob/master/vignettes/introduction.Rmd) provides a simple walkthrough for training on the cookbook corpus)
 
 **Repositories of Pretrained embeddings**  
-http://vectors.nlpl.eu/repository/ (includes embeddings from various corpora, languages, and methods)
-
+http://vectors.nlpl.eu/repository/
+https://github.com/jvparidon/subs2vec (Jeroen's repo - also includes python package for cleaning/training word embeddings using FastText)
