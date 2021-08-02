@@ -6,6 +6,9 @@ Here are some resources to get you started
 
  * A broad overview of the architecture and where it stands relative to Bag-of-Words, RNNs, LSTMs - https://www.youtube.com/watch?v=S27pHKBEp30
 
+ * A great blogpost walking through the various computations involved in the Transformer architecture - https://jalammar.github.io/illustrated-transformer/
+ * The original Transformer paper, 'Attention is all you need' - https://arxiv.org/abs/1706.03762
+ * The original BERT paper - https://arxiv.org/abs/1810.04805
  * PyTorch's Transformer Tutorial on Google Colab. This runs on the cloud so you don't need to worry about installing things locally - https://colab.research.google.com/github/pytorch/tutorials/blob/gh-pages/_downloads/dca13261bbb4e9809d1a3aa521d22dd7/transformer_tutorial.ipynb
 
 
