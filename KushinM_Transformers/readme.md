@@ -14,3 +14,7 @@ Here are some resources to get you started
 
 
 ![Alt Text](https://3.bp.blogspot.com/-aZ3zvPiCoXM/WaiKQO7KRnI/AAAAAAAAB_8/7a1CYjp40nUg4lKpW7covGZJQAySxlg8QCLcBGAs/s640/transform20fps.gif)
+
+All of Huggingface's great Transformers notebooks on pretraining, finetuning, training from scratch etc.
+
+https://huggingface.co/transformers/notebooks.html
