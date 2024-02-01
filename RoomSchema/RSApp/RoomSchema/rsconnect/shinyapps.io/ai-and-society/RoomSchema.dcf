@@ -1,0 +1,12 @@
+name: RoomSchema
+title: RoomSchema
+username: ai-and-society
+account: ai-and-society
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 10876919
+bundleId: 8115755
+url: https://ai-and-society.shinyapps.io/RoomSchema/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

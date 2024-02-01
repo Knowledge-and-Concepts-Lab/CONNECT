@@ -1,0 +1,164 @@
+---
+title: "Building the JetsNSharks model from scratch"
+output: html_notebook
+---
+
+This notebook builds the classic JetsNSharks model of human memory from scratch using basic R tools. The model shows how information about various individual people that might ordinarily be stored within a lookup table might be stored and retreived by a simple neural network that encodes (a) bidirectional positive connections between individuals and their properties and (b) bidirectional inhibitory connections among units that denote different mutually-incompatible values for a given kind of property, such as age or level of education.
+
+First let's look at the data table:
+
+```{r}
+dtab <- read.csv("JS_data_table.csv")
+head(dtab)
+```
+Each column encodes a particular kind of information; each row indicates properties of one individual person; and the various different entries within a column indicate all the possible values that can be adopted by that kind of information. So for _Gang_, every individual is either a Shark or a Jet. Note that the different possible values are mutually exclusive: one must be a Jet or a Shark but cannot be both.
+
+In the network, each column corresponds to a "layer" or group of mutually inhibtory properties. Units within each layer correspond to the possible entries in the corresponding column. Individual people are kind of like the row number in the table: there is one unit for each individual in a central pool, and each such unit sends positive connections to / receives positive connections from the properties specified in the corresponding row of the table. So "individual 1" has the name Art, is a Jet, in his 40s, with a junior-high education, is single, and is a pusher; the corresponding unit will send positive connections to and receive positive connections from each of these units.
+
+Units within a layer, because they correspond to mutually-exclusive values, compete for actiation: each such unit sends an inhibitory connection to all other units in the pool (and receives an inhibitory connection from other units in the pool). So if one unit get very active, it inhibits other values in the pool.
+
+Let's first collect names for all units in the network:
+
+```{r}
+unames <- c()
+ncols <- dim(dtab)[2] #Number of columns in the data table
+
+#Concatenate unique values from each column:
+for(i in c(1:ncols)) unames <- c(unames, unique(dtab[,i]))
+unames <- gsub(" ","",unames) #Remove any spaces
+unames
+```
+This is good but we still need to have the units that stand for each individual. We could name those with row-numbers, but that might be hard to understand. Let's instead use the _lower case_ form of the person's name to stand for the individual units, and append this to the front of the list of units:
+```{r}
+tmp <- tolower(dtab[,1])
+tmp <- gsub(" ","", tmp)
+unames <- c(tmp, unames)
+rm(tmp)
+unames
+```
+If we want to encode the current activation state across all units, we need a vector of the same length. And, we may as well name the elements of the vector according to the unit they represent:
+
+```{r}
+curract <- rep(0, times = length(unames))
+names(curract) <- unames
+curract["Ike"]
+```
+We can directly set the activation of some set of units by just putting the corresponding values into the current activation vector:
+
+```{r}
+curract[c("Pusher", "20s")] <- 1
+barplot(curract, las=2, cex.names = .5)
+```
+
+Given whatever input we specified, we want to now compute activations for all units in the network at the next step of time. To do this, the first thing we need is a matrix that stores the values of weights connecting pairs of units (and has a zero value where no such connection exists). I made this for you, load it now:
+
+```{r}
+w <- read.csv("JS_wts.csv", header = T, row.names = 1)
+w <- as.matrix(w)
+w[1:5,1:5]
+```
+```{r fig1, fig.height=15}
+par(oma = c(2,2,2,2))
+image(w[,68:1],xaxt = "n", yaxt = "n", col = c("blue","gray","red"))
+mtext(side = 2, at = c(67:0/67), row.names(w), adj = 1, cex = 2, las = 2)
+mtext(side = 3, at = c(0:67)/67, colnames(w), cex = 2, adj = 0, las = 2)
+```
+
+To compute the activation of each unit at the next timestep, we first have to compute each unit's net input. For a single unit, this is just the activation of each sending unit times the value of the weight going from the sending to the receiving unit. In the weight matrix, rows are sending units and columns are receiving units. So for a given unit, we can take the corresponding _column_ of weights (weights going in to that unit) and for each, multiply the value of the weight by the current activation of the sending unit (stored in _curract_). 
+
+```{r}
+#Make a vector to store current inputs to all units:
+currinput <- rep(0, times = length(unames))
+names(currinput) <- unames
+
+#Now set some inputs to 1:
+currinput[c("Jets", "Mar")] <- 1
+
+#Compute the net input to the first unit:
+
+sum(currinput * w[,1])
+
+```
+We could do this individually for each unit in the model with a _for_ loop, but that is a bit slow and unweildy. Instead let's use _matrix multiplication_:
+
+```{r}
+net <- currinput %*% w
+net
+```
+Now we have the net inputs for every unit in the model. How do we convert these into unit activations? Let's look at the _unit activation function_ specified in the paper (it is a bit weird):
+
+XXXX
+
+The function tells us how to set the unit activation in the next timestep given (a) the current net input and (b) the current unit activation. So we can write a simple function that takes these two numbers for a given unit and returns the corresponding activation for the next step of time. I've written such a function for you, you can read it in now:
+
+```{r}
+iacact <- dget("iac_activation.r")
+
+#What should activation be on next step for a unit that has current activation of 0 and a current net input of 1?
+
+iacact(0, 1)
+```
+In our developing network, the current activations of the units are specified solely by the current input; from these we computed net inputs for all units in the model. So to compute the activations for all units on the next timestep, we just need to do:
+
+```{r}
+curract <- iacact(currinput, net)
+curract
+```
+So this is what the current activations would be _if_ some units didn't also have direct input! For those units, we need to additionally make sure that they keep the same activation specified by the input:
+
+```{r}
+#Make sure units with non-zero inputs adopt the input activation state:
+curract[currinput != 0] <- currinput[currinput != 0]
+
+#Visualize the activations:
+barplot(curract)
+```
+So at one step of time, this is what activations look like! We can now go ahead and compute activation at the next time step, and the next and the next, etc---but first perhaps we should store the current activation in a data object so we can keep a record of the activation pattern at each time step:
+
+```{r}
+#Make an output matrix where rows are timepoints and columns are units:
+outputs <- rbind(currinput, curract)
+
+outputs[,1:5]
+```
+To compute the activation on the next timestep, we just repeat the same computations from before:
+- Compute net input for next timestep
+- Compute new activations from current activations and current net input
+- Replace input values for units where this is specified
+- Add result as a new row in the output matrix
+
+```{r}
+net <- curract %*% w
+curract <- iacact(curract, net)
+curract[currinput != 0] <- currinput[currinput != 0]
+outputs <- rbind(outputs, curract)
+outputs[,1:5]
+```
+So now if we want to simulate propagation of the input activations over many timesteps, we can just repeatedly run these computations in a loop:
+
+```{r}
+#Let's update for 18 more timesteps:
+
+for(i in c(1:18)){
+  net <- curract %*% w
+  curract <- iacact(curract, net)
+  curract[currinput != 0] <- currinput[currinput != 0]
+  outputs <- rbind(outputs, curract)
+  }
+
+outputs[,1:5]
+```
+We can look at the final pattern of activation across all units:
+```{r}
+barplot(outputs[21,])
+```
+...we can look at how activations change over time for each unit:
+
+```{r}
+plot(0,0,type ="n", xlab = "Time", ylab ="Activation", ylim = c(0,1), xlim = c(0,20))
+
+for(i in c(1:68)) lines(0:20, outputs[,i])
+text(rep(20, times = 68), outputs[21,], labels = row.names(w))
+
+```
+

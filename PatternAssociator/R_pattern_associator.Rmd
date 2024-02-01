@@ -1,0 +1,55 @@
+---
+title: "Pattern associator in R"
+output: html_notebook
+---
+This notebook is intended to illustrate classic approaches to pattern association
+
+
+```{r}
+#Load required libraries
+library(plotrix) #Adds plotting functions including ability to draw a circle easily
+
+#Read in pre-built functions
+
+make.pa <- dget("make_pa.r") #Function to create and initialize model
+plot.pa <- dget("plot_pa.r") #Function to plot pattern associator
+hebb.update <- dget("hebb_update.r") #Function to update weights via Hebb rule.
+delta.update <- dget("delta_update.r") #Function to update weights via delta rule.
+
+#Read input and output patterns
+
+#Read CSV file into temporary object:
+tmp <- read.csv("patterns1.csv", header = T, row.names = 1)
+
+#Pull out input patterns as a matrix:
+inputs <- as.matrix(tmp[,grep("in", names(tmp))])
+
+#Pull out output patterns as a matrix:
+targets <- as.matrix(tmp[,grep("out", names(tmp))])
+
+#Get rid of temporary object:
+rm(tmp)
+```
+
+_inputs_ and _targets_ are matrices containing, respectively, the input and output patterns to be associated. In each matrix, a row corresponds to an item and columns correspond to input or output units in the pattern assosciator.
+```{r}
+head(inputs)
+```
+Here you can see each input pattern consists of a vector of +1 or -1 values, which you can think of indicating whether the corresponding unit is active (+1) or inactive (-1). Similarly for the target patterns:
+```{r}
+head(targets)
+```
+There are 8 output units, and the target values indicate which activation each output unit should adopt when given the corresponding input pattern.
+
+A pattern associator consists of a set of _weights_ from each input unit direct to each output units. Weights indicate the effect that activity in an input unit has on the connected output unit. **Explain more**
+
+```{r}
+m <- make.pa(inputs,targets) #Create model
+m
+```
+
+```{r}
+plot.pa(m, inputs[1,], targets[1,])
+
+```
+
