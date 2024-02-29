@@ -1,10 +1,13 @@
 library(shiny)
 library(shinyWidgets)
 
-#Set global structures:
+#Set
+#global structures:
 room.wts <- as.matrix(read.csv("./data/room_weights.csv", header = T, row.names = 1))
+#room.wts <- as.matrix(read.csv("./data/animal_wts.csv", header = T, row.names = 1))
 unames <- row.names(room.wts)
 fromnames <-colnames(room.wts)
+nitems <- dim(room.wts)[1]
 
 # UI definition
 ui <- fluidPage(
@@ -24,7 +27,7 @@ ui <- fluidPage(
             ),
             column(6,
               checkboxGroupInput("selb", NULL,
-                choices = unames[c(1:20)*2]
+                choices = unames[c(1:(nitems/2))*2]
               )
             )
           ),
@@ -66,10 +69,10 @@ server <- function(input, output) {
   dt <- reactiveVal(value=0.2)
   ts <- reactiveVal(value=20)
   gvals <-reactiveVal(rep(0, times = 20))
-  ext.inputs <- reactiveVal(rep(0, times = 40))
+  ext.inputs <- reactiveVal(rep(0, times = nitems))
   
   #Initialize activation matrix:
-  tmp <- update.acts(rep(0, times = 40), room.wts)
+  tmp <- update.acts(rep(0, times = nitems), room.wts)
   tmp[,] <- 0
   amat <- reactiveVal(tmp)
 
@@ -79,8 +82,8 @@ server <- function(input, output) {
     y <- as.numeric(input$plot_hover$y)
     
     if(input$wtflag){ #If weights are showing:
-      to <- floor(x * 39-.5) + 2
-      from <- 40 - floor(y * 40 - .5)
+      to <- floor(x * nitems-0.5) + 2
+      from <- nitems - floor(y * nitems - .5)
 
       if(length(x)==0 | length(y)==0){
         o <- "no connection selected"
@@ -95,10 +98,10 @@ server <- function(input, output) {
       }
       x <- floor(x)
       y <- floor(y) + 1
-      if(x < 1 | x > ts() | y < 1 | y > 40 | length(x)==0 | length(y) ==0){ 
+      if(x < 1 | x > ts() | y < 1 | y > nitems | length(x)==0 | length(y) ==0){ 
         o <- "no unit selected"
       } else{
-        o <- paste(unames[41 - y], ": ", round(amat()[41 - y,x], 3))
+        o <- paste(unames[nitems - y + 1], ": ", round(amat()[nitems - y + 1,x], 3))
         #o <- c(length(x), length(y))
       }
     }
@@ -109,7 +112,7 @@ server <- function(input, output) {
   observeEvent(input$run,{
     #render the network    
     selected <- c(input$sela, input$selb)
-    tmp <- rep(0, times = 40)
+    tmp <- rep(0, times = nitems)
     tmp[match(selected, unames)] <- 1
     ext.inputs(tmp)
     amat(update.acts(ext.inputs(), room.wts, dt = dt(), timesteps=ts()))
@@ -121,8 +124,8 @@ server <- function(input, output) {
   #Click reset button
   observeEvent(input$reset,{
     #render the network with null values
-    ext.inputs(rep(0, times = 40))
-    nullmat <- matrix(0, 40, ts()) #Matrix of zeros
+    ext.inputs(rep(0, times = nitems))
+    nullmat <- matrix(0, nitems, ts()) #Matrix of zeros
     row.names(nullmat) <- unames   #Unit names
     amat(nullmat)
   })

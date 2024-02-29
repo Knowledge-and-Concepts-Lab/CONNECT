@@ -38,6 +38,49 @@ delta.update <- function(m, inp, outp, lr = 1.0){
 	delta + m
 }
 
+get.err <- function(m, inp, outp){
+#This function computes mean squared error for linear outputs
+#given a current weight matrix m and matrices of input and output patterns
+#m: current weight matrix
+#inp: matrix of input patterns
+#outo: matrix with corresponding output patterns
+###################
+	
+	if(is.vector(inp)) inp <- matrix(inp, 1, length(inp)) #If input is a vector make it a matrix
+	if(is.vector(outp)) outp <- matrix(outp, 1, length(outp)) #If output is a vector make it a matrix
+
+	predout <- inp %*% m
+	err <- outp - predout
+
+	sum(err^2)
+}
+
+get.terr <- function(m, inp, outp, amin, amax){
+#This function computes mean squared error for thresholded outputs
+#given a current weight matrix m and matrices of input and output patterns
+#m: current weight matrix
+#inp: matrix of input patterns
+#outp: matrix with corresponding output patterns
+#amin: Minimum activation
+#amax: Maximum activation
+###################
+
+	#Compure threshold:
+    athresh <- amin + (amax - amin)/2
+
+	if(is.vector(inp)) inp <- matrix(inp, 1, length(inp)) #If input is a vector make it a matrix
+	if(is.vector(outp)) outp <- matrix(outp, 1, length(outp)) #If output is a vector make it a matrix
+
+	predout <- inp %*% m
+	threshout <- matrix(amin, dim(predout)[1], dim(predout)[2])
+	threshout[predout > athresh] <- amax
+	
+	err <- 1 - mean(outp == threshout)
+
+	err
+}
+
+
 make.pa <- function(inputs, targets, init=0){
 #This function creates a pattern association matrix given
 #a set of input patterns and target patterns.
@@ -57,8 +100,17 @@ make.pa <- function(inputs, targets, init=0){
 		#Otherwise initialize with uniform random between -init and +init:
 		m <- matrix((runif(innum*outnum) - .5) * 2 * init, innum, outnum)
 		}
-	row.names(m) <- paste0("In", c(1:innum)) #Name rows
-	colnames(m) <- paste0("Out", c(1:outnum)) #Name columns
+	#Set weight matrix names:
+	if(is.null(colnames(inputs))){
+		row.names(m) <- paste0("In", c(1:innum))
+	} else{
+		row.names(m) <- gsub("in_", "", colnames(inputs))
+	}
+	if(is.null(colnames(targets))){
+		colnames(m) <- paste0("In", c(1:innum))
+	} else{
+		colnames(m) <- gsub("out_","",colnames(targets))
+	}
 	m #Return initialized model 
 }
 
@@ -68,7 +120,7 @@ plot.pa <- function(m, inpat, outpat, rd = 0.15){
 #inpat: Input pattern to show
 #outpat: Output pattern to show
 #############
-	par(oma = c (0,0,0,0), mar = c(1,1,0,1))
+	par(oma = c (0,0,0,0), mar = c(2,2,1,1))
 	innum <- dim(m)[1]  #Number of input units
 	outnum <- dim(m)[2] #Number of output units
 	
@@ -108,7 +160,7 @@ plot.pa <- function(m, inpat, outpat, rd = 0.15){
 	incol[inpat < 0] <- "blue"
 	incol[inpat > 0] <- "red"
 	for(i in c(1:innum)) rect(-1, innum - i-.4 + 1, 0, innum - i + 1.4, col = incol[i])
-	text(rep(-.5, times = innum), c(innum:1), labels = round(inpat,1), col = "white", adj = 0.5)
+	text(rep(-.5, times = innum), c(innum:1), labels = round(inpat,3), col = "white", adj = 0.5)
 
 	#Print input unit names if they are specified:
 	if(!is.null(row.names(m))) {
@@ -121,7 +173,7 @@ plot.pa <- function(m, inpat, outpat, rd = 0.15){
 	predcol[predpat < 0] <- "blue"
 	predcol[predpat > 0] <- "red"
 	for(i in c(1:outnum)) rect(i-.4, -1, i + .4, 0, col = predcol[i])
-	text(c(1:outnum), rep(-.5, times = outnum), labels = round(predpat, 1), col = "white")
+	text(c(1:outnum), rep(-.5, times = outnum), labels = round(predpat, 3), col = "white")
 
 	### Add targets
 	#Make color vector:
@@ -130,7 +182,7 @@ plot.pa <- function(m, inpat, outpat, rd = 0.15){
 	outcol[outpat > 0] <- "red"
 	
 	for(i in c(1:outnum)) rect(i-.4, -2, i + .4, -1, col = outcol[i]) #Draw boxes
-	text(c(1:outnum), rep(-1.5, times = outnum), labels = round(outpat, 1), col = "white") #Target values
+	text(c(1:outnum), rep(-1.5, times = outnum), labels = round(outpat, 3), col = "white") #Target values
 	
 	#Print ouput unit names if they are specified:
 	if(!is.null(colnames(m))) {

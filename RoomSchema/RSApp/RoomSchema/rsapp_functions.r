@@ -62,7 +62,7 @@ iac.activation <- function(act, net, decay = TRUE, rest = 0.0, maxout = 1.0, min
 	newact
 }
 
-update.acts <- function(inputs, rwts = rwts, dt = 0.2, timesteps =20, clamp = TRUE, decay = FALSE){
+tmp.update.acts <- function(inputs, rwts = rwts, dt = 0.2, timesteps =20, clamp = TRUE, decay = FALSE){
 #This function takes an input vector and computes
 #unit activations over the specified number of 
 #timesteps for the room schema network
@@ -86,6 +86,30 @@ update.acts <- function(inputs, rwts = rwts, dt = 0.2, timesteps =20, clamp = TR
 	o
 }
 	
+update.acts <- function(inputs, rwts = rwts, dt = 0.2, timesteps =20, clamp = TRUE, decay = FALSE){
+#This function takes an input vector and computes
+#unit activations over the specified number of 
+#timesteps for the room schema network
+#inputs: A binary (0-1) vector of external inputs to units
+#timesteps: Number of timesteps to computer
+#rwts: Weights for the room schema model
+#returns: a matrix where rows are units and columns are timesteps
+#########
+
+	#Initialize output matrix:
+	o <- matrix(NA, length(inputs), timesteps)
+
+	for(i in c(1:timesteps)){
+		if(i==1) curract <- inputs else curract <- o[,i-1]
+		currinput <- append(c(1), curract) #append bias unit
+		net <- currinput %*% rwts #compute net inputs
+		o[,i] <- iac.activation(curract, net, dt = dt, decay = decay)
+		if(clamp) o[inputs==1.0,i] <- 1.0 #If clamping, set externally activated units to 1.0
+		}
+	row.names(o) <- row.names(rwts)
+	o
+}
+
 goodness <- function(inputs, states, wts){
 #This function computes the goodness of an activation pattern
 #over network units given the current inputs, activation pattern

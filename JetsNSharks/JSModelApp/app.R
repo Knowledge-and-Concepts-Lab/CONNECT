@@ -13,7 +13,7 @@ unames <- row.names(js.wts)
 ui <- fluidPage(
   
 # Application title
-#titlePanel("Room Schema Model"),
+#titlePanel("Jets N Sharks"),
 
 # Top panel:
   wellPanel(
@@ -128,7 +128,8 @@ ui <- fluidPage(
       ),
     column(10,
       wellPanel(
-        plotOutput("modelPlot", NULL, width = '100%', height = '600px', hover="plot_hover")
+        plotOutput("modelPlot", NULL, width = '100%', height = '600px', 
+                   hover="plot_hover", click="plot_click")
       )
     )
   )
@@ -148,6 +149,7 @@ server <- function(input, output) {
   ts <- reactiveVal(value=20)
   currtime <- reactiveVal(value = 1)
   amat <- reactiveVal(update.acts(rep(0, times = 68), js.wts))
+  wmat <- reactiveVal(js.wts) #Editable weights to use / display
   
   #Hover function:
   output$unit_info <- renderPrint({
@@ -161,8 +163,8 @@ server <- function(input, output) {
       if(length(x)==0 | length(y)==0){
         o <- "no connection selected"
       } else{
-#        o <- paste0("from ", unames[from], " to ", unames[to], ": ", js.wts[from, to])
-        o <- c(from, to))
+        o <- paste0("from ", unames[from], " to ", unames[to], ": ", wmat()[from, to])
+#        o <- c(from, to)
       }
     } else{
       dx <- abs((input$plot_hover$x - 1) - jscoords$X + .5)
@@ -180,6 +182,25 @@ server <- function(input, output) {
   }
   )
   
+  #Click weights to lesion/restore:
+  observeEvent(input$plot_click,{
+    if(input$wtflag){
+      x <- as.numeric(input$plot_hover$x)
+      y <- as.numeric(input$plot_hover$y)
+      to <- floor(x * 67-.5) + 2
+      from <- 67 - floor(y * 67 - .5)
+      
+      if(length(x)==0 | length(y)==0){
+        o <- "no connection selected"
+      } else{
+        tmp <- wmat() #Copy current weight matrix
+        if(tmp[from, to] == 0) tmp[from, to] <- jswts[from, to] else tmp[from, to] <- 0
+        if(tmp[to, from] == 0) tmp[to, from] <- jswts[to, from] else tmp[to, from] <- 0
+        wmat(tmp)
+      }
+    } 
+  })
+  
   #Click the run button
   observeEvent(input$run,{
     #Compute input vector
@@ -188,7 +209,7 @@ server <- function(input, output) {
     ext.inputs[match(selected, unames)] <- 1
     
     #Update activation matrix:
-    amat(update.acts(ext.inputs, js.wts, dt = dt(), timesteps=ts()))
+    amat(update.acts(ext.inputs, wmat(), dt = dt(), timesteps=ts()))
     currtime(1) #Set current time to 1
 
   })
@@ -224,7 +245,7 @@ server <- function(input, output) {
     
     currtime() #reset current time
     #Update with blank input
-    amat(update.acts(blank.input[,1], js.wts, dt(), ts()))
+    amat(update.acts(blank.input[,1], wmat(), dt(), ts()))
   })
   
   #Set values when numeric input changes
@@ -243,7 +264,7 @@ server <- function(input, output) {
     ext.inputs[match(selected, unames)] <- 1
     
     #Update activation matrix:
-    amat(update.acts(ext.inputs, js.wts, dt = dt(), timesteps=ts()))
+    amat(update.acts(ext.inputs, wmat(), dt = dt(), timesteps=ts()))
     currtime(1) #Set current time to 1
     
   })
@@ -255,15 +276,16 @@ server <- function(input, output) {
       currtime((currtime()+1) %% ts())
     })
   })
-
+  
   output$modelPlot <- renderPlot({
     if(input$wtflag){
-      plot.wts(js.wts)
+      plot.wts(wmat())
     } else{
       if(currtime()!=0) inpat <- amat()[,currtime()] else inpat <- blank.input[,1]
       render.network(inpat, jscoords)
     }
     })
+  
     #Update counter display:
     output$stepcounter <- renderText({
       o <- "  "
